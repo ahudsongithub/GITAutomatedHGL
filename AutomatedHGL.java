@@ -9,7 +9,7 @@ package automatedhgl;
 
 /**
  *
- * @author ahudson
+ * @author ahudson and others
  */
 
 import java.sql.ResultSet;
@@ -33,47 +33,137 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class AutomatedHGL {
+public class AutomatedHGL 
+{
+    
+    static double InletStr;
+    static double OutWSE;
+    int Do = 1;
+    int Qo = 1;
+    int Lo = 1;
+    String SFO;
+        
+    char Hf = 'G';
+    int Vo = 1;
+    char Ho = 'I';
+    int Qi = 1;
+    int Vi = 1;
+    int QiVi = Qi * Vi;
+    char Vi2g = 'M';
+    char Hi = 'N';
+    int ANG = 1;
+    char Ha = 'P';
+    char Ht = 'Q';
+    char HHt = 'R';
+    char DHt = 'S';
+    char FH = 'T';
+    char IWSE = 'U';
+    int OpenELE = 1;
+    int InvIn = 1;
+    char SurfInFlo = 'Y';
+    char K = 'Z';
+    char RimMnWSE = 'A';
+    char DIA = 'B';
+    char InShape = 'C';
+   
+    
+    static int count;
+    
+    
     
     private static final String INFILE_NAME = "/tmp/STORMDES.xlsx";
     
     private static final String FILE_NAME = "/tmp/HGLEXCEL.xlsx";
     
-    public static void main(String[] args) {
-        
-        
-        //Input Excel file
-        
-        try {
-
+    public static void main(String[] args) 
+    {
+                            
+        try 
+        {
+                        
             FileInputStream excelFile = new FileInputStream(new File(INFILE_NAME));
-            Workbook workbook = new XSSFWorkbook(excelFile);
-            Sheet datatypeSheet = workbook.getSheetAt(0);
-            Iterator<Row> iterator = datatypeSheet.iterator();
+            
+            //create workbook instance holding reference to .xlsx file
+            XSSFWorkbook workbook = new XSSFWorkbook(excelFile);
+            
+            //get first desired sheet from the workbook
+            XSSFSheet sheet = workbook.getSheetAt(0);
+            
+            
+            //create workbook instance to output excel file
+            XSSFWorkbook workbookHGL = new XSSFWorkbook();
+            
+            //create sheet in output excel file
+            XSSFSheet sheetHGL = workbookHGL.createSheet("HGL");
+            
+            
+            //iterate through each row one by one
+            Iterator<Row> rowiterator = sheet.iterator();
 
-            while (iterator.hasNext()) {
+            while (rowiterator.hasNext()) 
+            {
+                Row row = rowiterator.next();
+                
+                //for each row, iterate through all the columns
+                Iterator<Cell> cellIterator = row.cellIterator();
 
-                Row currentRow = iterator.next();
-                Iterator<Cell> cellIterator = currentRow.iterator();
+                while (cellIterator.hasNext()) 
+                {
 
-                while (cellIterator.hasNext()) {
-
-                    Cell currentCell = cellIterator.next();
-                    
-                    if (currentCell.getCellTypeEnum() == CellType.NUMERIC) {
-                        System.out.print(currentCell.getNumericCellValue() + "  ");
+                    Cell cell = cellIterator.next();
+                                                                                
+                    if (row.getRowNum() > 7 && count < 23 )  //to filter column headings
+                    {
+                                                
+                        //check the cell type and format accordingly
+                        switch (cell.getCellType())
+                        {
+                            case Cell.CELL_TYPE_NUMERIC:
+                                count++;
+                                
+                                //assign get value to correct variable
+                                if(count == 1 ){InletStr = cell.getNumericCellValue();}
+                                else if(count == 2 ){OutWSE = cell.getNumericCellValue();}
+                                
+                                System.out.print(cell.getNumericCellValue() + " (" + count + ") ");
+                                break;
+                                
+                            case Cell.CELL_TYPE_STRING:
+                                count++;
+                                
+                                /*//assign get value to correct variable
+                                if( count == 1 ){InletStr = cell.getStringCellValue();}*/
+                                
+                                System.out.print(cell.getStringCellValue() + " (" + count + ") ");
+                                break;
+                                
+                            case Cell.CELL_TYPE_FORMULA:
+                                count++;
+                                
+                                /*//assign get value to correct variable
+                                if( count == 1 ){InletStr = cell.getCachedFormulaResultType();}*/
+                                
+                                System.out.print(cell.getCachedFormulaResultType() + " (" + count + ") ");
+                                break;
+                        } 
                     }
-
+                    
+                    else
+                    {
+                        count = 0; //reset the count at the end of the row
+                    }
+                                       
                 }
-                System.out.println();
-
+                                                
+                System.out.println("return");
             }
+            
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-       
+                
         
         //Output Excel file
             
@@ -109,13 +199,16 @@ public class AutomatedHGL {
             FileOutputStream outputStream = new FileOutputStream(FILE_NAME);
             workbook.write(outputStream);
             workbook.close();
+            
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
         
-        System.out.println("HGL Test Done");        
+        System.out.print(InletStr + " ");
+        System.out.print(OutWSE + " ");
+        System.out.println("HGL Done");        
                 
     }
     
