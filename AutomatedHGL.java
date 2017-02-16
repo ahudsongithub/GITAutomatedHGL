@@ -38,9 +38,10 @@ public class AutomatedHGL
     
     static double InletStr;
     static double OutWSE;
-    int Do = 1;
-    int Qo = 1;
-    int Lo = 1;
+    static double Do;
+    static double Qo;
+    static double Lo;
+    static double OpenEle;
     String SFO;
         
     char Hf = 'G';
@@ -58,7 +59,6 @@ public class AutomatedHGL
     char DHt = 'S';
     char FH = 'T';
     char IWSE = 'U';
-    int OpenELE = 1;
     int InvIn = 1;
     char SurfInFlo = 'Y';
     char K = 'Z';
@@ -67,9 +67,8 @@ public class AutomatedHGL
     char InShape = 'C';
    
     
-    static int count;
-    
-    
+    static int j;
+        
     
     private static final String INFILE_NAME = "/tmp/STORMDES.xlsx";
     
@@ -112,45 +111,43 @@ public class AutomatedHGL
 
                     Cell cell = cellIterator.next();
                                                                                 
-                    if (row.getRowNum() > 7 && count < 23 )  //to filter column headings
+                    if (row.getRowNum() > 7 && j < 23 )  //to filter column headings
                     {
                                                 
                         //check the cell type and format accordingly
                         switch (cell.getCellType())
                         {
                             case Cell.CELL_TYPE_NUMERIC:
-                                count++;
+                                j++;
                                 
                                 //assign get value to correct variable
-                                if(count == 1 ){InletStr = cell.getNumericCellValue();}
-                                else if(count == 2 ){OutWSE = cell.getNumericCellValue();}
+                                if(j == 1 ){InletStr = cell.getNumericCellValue();} //inlet structure
+                                if(j == 9 ){Qo = cell.getNumericCellValue();} //flow out of junction
+                                if(j == 12 ){Lo = cell.getNumericCellValue();} //length of pipe out of junction
+                                if(j == 14 ){Do = cell.getNumericCellValue();} //diameter of outlet pipe
                                 
-                                System.out.print(cell.getNumericCellValue() + " (" + count + ") ");
+                                System.out.print(" N(" + j + ")" + cell.getNumericCellValue() + " ");
                                 break;
                                 
                             case Cell.CELL_TYPE_STRING:
-                                count++;
-                                
-                                /*//assign get value to correct variable
-                                if( count == 1 ){InletStr = cell.getStringCellValue();}*/
-                                
-                                System.out.print(cell.getStringCellValue() + " (" + count + ") ");
+                                j++;
+                             
+                               
+                                System.out.print(" S(" + j + ")" + cell.getStringCellValue() + " ");
                                 break;
                                 
                             case Cell.CELL_TYPE_FORMULA:
-                                count++;
+                                j++;
                                 
-                                /*//assign get value to correct variable
-                                if( count == 1 ){InletStr = cell.getCachedFormulaResultType();}*/
-                                
-                                System.out.print(cell.getCachedFormulaResultType() + " (" + count + ") ");
+                               
+                                System.out.print(" F(" + j + ")" + cell.getCachedFormulaResultType() + " ");
                                 break;
                         } 
                     }
                     
                     else
                     {
-                        count = 0; //reset the count at the end of the row
+                        j = 0; //reset the count at the end of the row
                     }
                                        
                 }
@@ -205,9 +202,7 @@ public class AutomatedHGL
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
-        System.out.print(InletStr + " ");
-        System.out.print(OutWSE + " ");
+
         System.out.println("HGL Done");        
                 
     }
